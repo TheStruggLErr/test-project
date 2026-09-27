@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Collection — Personal Dashboard</title>
+<style>
+:root{--bg:#eee6d3;--panel:#f8f3e7;--panel2:#e5ddc8;--text:#263020;--muted:#69705d;--line:#d3c9ae;--accent:#6f7d3c;--accent-dark:#4e5b2b;--danger:#a65343;--ok:#58764a;--shadow:0 8px 24px rgba(70,62,40,.08)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;letter-spacing:.01em}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+.app{display:flex;min-height:100vh}.side{width:250px;height:100vh;overflow-y:auto;overflow-x:hidden;border-right:1px solid var(--line);padding:24px 16px;position:fixed;inset:0 auto 0 0;background:#e3dcc8;box-shadow:4px 0 18px rgba(70,62,40,.06);scrollbar-width:thin;scrollbar-color:var(--accent) #d8cfb7}.side::-webkit-scrollbar{width:8px}.side::-webkit-scrollbar-track{background:#d8cfb7;border-radius:8px}.side::-webkit-scrollbar-thumb{background:var(--accent);border-radius:8px;border:2px solid #d8cfb7}.side::-webkit-scrollbar-thumb:hover{background:var(--accent-dark)}
+.logo{font-weight:900;font-size:20px;padding:0 12px 24px;letter-spacing:.08em}.logo span{color:var(--accent-dark)}
+nav button{display:block;width:100%;text-align:left;border:0;background:transparent;color:var(--muted);padding:12px;border-radius:10px;margin:3px 0}
+nav button:hover,nav button.active{background:var(--accent);color:#fff}
+.main{margin-left:250px;flex:1;padding:34px;max-width:1500px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:26px}.top h1{margin:0;font-size:30px}.top p{color:var(--muted);margin:5px 0 0}
+.primary{background:var(--accent);color:#fff;border:0;border-radius:10px;padding:11px 16px;font-weight:700;box-shadow:var(--shadow)}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow)}.stat{font-size:28px;font-weight:800;margin-top:8px}.label{font-size:13px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-top:16px}.section{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow)}.section h2{margin:0 0 16px;font-size:18px}
+.progress{height:9px;background:#d9d1bb;border-radius:99px;overflow:hidden}.bar{height:100%;background:var(--accent);width:0}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}.row:last-child{border-bottom:0}
+.badge{padding:4px 8px;border-radius:999px;background:#242a31;color:#cbd1d8;font-size:12px}.ok{color:var(--ok)}.danger{color:var(--danger)}
+.page{display:none}.page.active{display:block}.toolbar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}.toolbar input,.toolbar select,.form input,.form select,.form textarea{background:#fffaf0;border:1px solid var(--line);color:var(--text);padding:10px;border-radius:9px}.toolbar input{min-width:240px}
+.items{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.item{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow)}.item h3{margin:0 0 5px}.item .meta{color:var(--muted);font-size:13px;line-height:1.7}.item .price{font-weight:800;margin-top:10px}
+.empty{color:var(--muted);padding:30px;text-align:center;border:1px dashed var(--line);border-radius:12px}
+.modal{position:fixed;inset:0;background:rgba(58,54,39,.28);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:18px;z-index:20}.modal.open{display:flex}.modalbox{width:min(900px,96vw);max-height:92vh;overflow:hidden;background:#f8f3e7;border:1px solid #cfc4a8;border-radius:22px;padding:24px;box-shadow:0 24px 70px rgba(53,48,31,.20)}.form{display:grid;gap:11px}.form label{font-size:13px;color:var(--muted)}.actions{display:flex;justify-content:flex-end;gap:10px;margin-top:10px}
+.smallbtn{border:1px solid var(--line);background:#fffaf0;color:var(--text);border-radius:8px;padding:8px 11px}.dangerbtn{border-color:#5d3030;color:#ffaaaa}
+.table{width:100%;border-collapse:collapse}.table th,.table td{text-align:left;padding:12px;border-bottom:1px solid var(--line);font-size:14px}.table th{color:var(--muted);font-weight:500}
+@media(max-width:900px){.side{width:210px}.main{margin-left:210px}.cards{grid-template-columns:repeat(2,1fr)}.items{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:650px){.modalbox form{grid-template-columns:1fr!important}.modalbox{padding:18px}.side{position:static;width:100%;height:auto;border-right:0;border-bottom:1px solid var(--line)}.app{display:block}.main{margin-left:0;padding:18px}.cards,.items,.grid{grid-template-columns:1fr}.top{align-items:flex-start;gap:10px}.side nav{display:grid;grid-template-columns:repeat(2,1fr)}}
+.modalbox form > div::-webkit-scrollbar{width:8px}.modalbox form > div::-webkit-scrollbar-track{background:#e3dcc8;border-radius:8px}.modalbox form > div::-webkit-scrollbar-thumb{background:#9aa277;border-radius:8px}.modalbox form > div::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+@media(max-width:700px){.modalbox form > div>div>div{grid-template-columns:1fr!important}.modalbox{max-height:94vh}.modalbox form>div{max-height:66vh}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="side">
+  <div class="logo">MY <span>COLLECTION</span></div>
+  <div style="padding:0 8px 14px">
+  <input id="globalSearch" oninput="globalSearchItems()" placeholder="Search products..." style="width:100%;background:#fffaf0;border:1px solid var(--line);color:var(--text);padding:10px;border-radius:9px">
+</div>
+<nav id="nav">
+    <button data-page="search">⌕ Product Search</button><button class="active" data-page="dashboard">⌂ Dashboard</button>
+    <button data-page="wardrobe">👕 Wardrobe</button>
+    <button data-page="footwear">👟 Footwear</button>
+    <button data-page="accessories">⌚ Accessories</button>
+    <button data-page="grooming">🧴 Grooming</button>
+    <button data-page="resources">🎒 Resources</button>
+    <button data-page="wishlist">♥ Wishlist</button>
+    <button data-page="outfits">👔 Outfit Builder</button>
+    <button data-page="budget">₹ Budget</button>
+    <button data-page="orders">▣ Orders</button>
+    <button data-page="stats">▥ Statistics</button><button data-page="sharing">↗ Sharing</button><button data-page="settings">⚙ Settings</button>
+  </nav>
+</aside>
+
+<main class="main">
+<section id="search" class="page"><div class="top"><div><h1>Product Search</h1><p>Search across your entire collection, wishlist and resources.</p></div></div><div class="toolbar"><input id="searchPageInput" placeholder="Search by name, category, colour, brand, status..." oninput="renderSearchResults()"></div><div class="items" id="searchResults"></div></section>
+
+<section id="sharing" class="page"><div class="top"><div><h1>Sharing</h1><p>Create read-only views and select exactly which products are visible.</p></div></div>
+<div class="section"><h2>Create shared collection</h2><p class="label">Recipients see selected products only. Your master collection remains private and editable only by you.</p>
+<div class="toolbar"><input id="shareSearch" placeholder="Search products..." oninput="renderSharePicker()"><button class="smallbtn" onclick="selectAllShare()">Select all</button><button class="smallbtn" onclick="clearShare()">Clear</button></div>
+<div id="sharePicker" class="items"></div><div class="actions" style="justify-content:flex-start"><button class="primary" onclick="createShare()">Create read-only share</button></div></div>
+<div class="section" style="margin-top:16px"><h2>Shared collections</h2><div id="sharesList"></div></div></section>
+<section id="settings" class="page"><div class="top"><div><h1>Owner & Backup</h1><p>Protect and back up your collection.</p></div></div>
+<div class="section"><h2>Owner protection</h2><p class="label">Set an owner PIN. Editing actions require Owner Mode.</p><div class="row"><span>Owner PIN</span><button class="smallbtn" onclick="setOwnerPin()">Set / change PIN</button></div><div class="row"><span>Lock editing</span><button class="smallbtn" onclick="lockOwner()">Lock now</button></div><div class="row"><span>Current mode</span><span class="badge" id="ownerMode">Owner</span></div></div>
+<div class="section" style="margin-top:16px"><h2>Backups</h2><p class="label">Data is stored persistently in this browser and mirrored to IndexedDB. Export backups to your computer/phone cloud storage for durable off-device copies.</p><div class="toolbar"><button class="primary" onclick="exportBackup()">Export complete backup</button><button class="smallbtn" onclick="document.getElementById('importFile').click()">Import backup</button><input id="importFile" type="file" accept=".json" style="display:none" onchange="importBackup(event)"></div></div></section>
+<section id="dashboard" class="page active">
+  <div class="top"><div><h1>My Collection</h1><p>Your personal collection and wardrobe dashboard.</p></div><button class="primary" onclick="openModal()">+ Add item</button></div>
+  <div class="cards">
+    <div class="card"><div class="label">Total items</div><div class="stat" id="totalItems">0</div></div>
+    <div class="card"><div class="label">Money spent</div><div class="stat" id="totalSpent">₹0</div></div>
+    <div class="card"><div class="label">Wishlist</div><div class="stat" id="wishlistCount">0</div></div>
+    <div class="card"><div class="label">Outfits</div><div class="stat" id="outfitCount">0</div></div>
+  </div>
+  <div class="grid">
+    <div class="section"><h2>4-month wardrobe plan</h2>
+      <div class="row"><span>October 2026</span><span id="oct">0 / 5</span></div>
+      <div class="row"><span>November 2026</span><span id="nov">0 / 5</span></div>
+      <div class="row"><span>December 2026</span><span id="dec">0 / 5</span></div>
+      <div class="row"><span>January 2027</span><span id="jan">0 / 5</span></div>
+      <div style="margin-top:15px" class="progress"><div class="bar" id="planBar"></div></div>
+      <p class="label" id="planText" style="margin-top:8px">0 / 20 planned purchases</p>
+    </div>
+    <div class="section"><h2>Budget</h2><div class="label">Wardrobe target</div><div class="stat">₹20,000</div>
+      <div style="margin-top:15px" class="progress"><div class="bar" id="budgetBar"></div></div>
+      <p class="label" id="budgetText" style="margin-top:8px">₹0 spent · ₹20,000 remaining</p>
+    </div>
+  </div>
+  <div class="section" style="margin-top:16px"><h2>Recent items</h2><div id="recent"></div></div><div class="section" style="margin-top:16px"><h2>Collection history</h2><p class="label">Your existing collection can be entered with its original acquired date and month, including past October.</p><div id="history"></div></div>
+</section>
+
+<section id="wardrobe" class="page"><div class="top"><div><h1>Wardrobe</h1><p>Clothing inventory.</p></div><button class="primary" onclick="openModal('Wardrobe')">+ Add clothing</button></div><div class="toolbar"><input id="wardrobeSearch" placeholder="Search wardrobe..." oninput="renderCategory('Wardrobe')"></div><div class="items" id="wardrobeItems"></div></section>
+<section id="footwear" class="page"><div class="top"><div><h1>Footwear</h1><p>Shoes and footwear.</p></div><button class="primary" onclick="openModal('Footwear')">+ Add footwear</button></div><div class="items" id="footwearItems"></div></section>
+<section id="accessories" class="page"><div class="top"><div><h1>Accessories</h1><p>Watches, belts, wallets, sunglasses and more.</p></div><button class="primary" onclick="openModal('Accessories')">+ Add accessory</button></div><div class="items" id="accessoriesItems"></div></section>
+<section id="grooming" class="page"><div class="top"><div><h1>Grooming</h1><p>Personal-care inventory.</p></div><button class="primary" onclick="openModal('Grooming')">+ Add product</button></div><div class="items" id="groomingItems"></div></section>
+<section id="resources" class="page"><div class="top"><div><h1>Resources</h1><p>Technology, study gear and useful resources.</p></div><button class="primary" onclick="openModal('Resources')">+ Add resource</button></div><div class="items" id="resourcesItems"></div></section>
+<section id="wishlist" class="page"><div class="top"><div><h1>Wishlist</h1><p>Things you want to buy later.</p></div><button class="primary" onclick="openModal('Wishlist')">+ Add wishlist item</button></div><div class="items" id="wishlistItems"></div></section>
+<section id="outfits" class="page"><div class="top"><div><h1>Outfit Builder</h1><p>Create and save combinations from your collection.</p></div></div>
+  <div class="section"><h2>Quick builder</h2><div class="toolbar">
+    <select id="topSel"><option value="">Select top</option></select><select id="bottomSel"><option value="">Select bottom</option></select><select id="shoeSel"><option value="">Select footwear</option></select><select id="watchSel"><option value="">Select accessory</option></select>
+    <button class="primary" onclick="saveOutfit()">Save outfit</button>
+  </div><div id="outfitPreview" class="empty">Choose pieces to preview an outfit.</div></div>
+  <div class="section" style="margin-top:16px"><h2>Saved outfits</h2><div id="savedOutfits"></div></div>
+</section>
+<section id="budget" class="page"><div class="top"><div><h1>Budget</h1><p>Create budgets for any period and assign products to the budget they belong to.</p></div><button class="primary" onclick="openBudgetModal()">+ New budget</button></div>
+<div class="section" style="margin-bottom:16px"><h2>Your budgets</h2><div id="budgetList"></div></div>
+<div class="cards"><div class="card"><div class="label">Target</div><div class="stat">₹20,000</div></div><div class="card"><div class="label">Spent</div><div class="stat" id="budgetSpent">₹0</div></div><div class="card"><div class="label">Remaining</div><div class="stat" id="budgetRemain">₹20,000</div></div><div class="card"><div class="label">Average item</div><div class="stat" id="avgItem">₹0</div></div></div><div class="section" style="margin-top:16px"><h2>Purchases</h2><div id="purchaseTable"></div></div></section>
+<section id="orders" class="page"><div class="top"><div><h1>Orders</h1><p>Order and return-window tracking.</p></div><button class="primary" onclick="openModal('Orders')">+ Add order</button></div><div id="ordersList" class="section"></div></section>
+<section id="stats" class="page"><div class="top"><div><h1>Statistics</h1><p>Collection overview.</p></div></div><div class="cards" id="statsCards"></div><div class="section" style="margin-top:16px"><h2>Category breakdown</h2><div id="categoryStats"></div></div></section>
+</main>
+</div>
+
+<div class="modal" id="budgetModal"><div class="modalbox"><h2 id="budgetModalTitle">Create budget</h2>
+<form class="form" onsubmit="saveBudget(event)">
+<input id="bId" type="hidden">
+<label>Budget name<input id="bName" required placeholder="e.g. October Wardrobe"></label>
+<label>Amount (₹)<input id="bAmount" type="number" min="0" step="1" required></label>
+<label>Start date<input id="bStart" type="date" required></label>
+<label>End date<input id="bEnd" type="date" required></label>
+<label>Notes<textarea id="bNotes" rows="3" placeholder="Optional"></textarea></label>
+<div class="actions"><button type="button" class="smallbtn" onclick="closeBudgetModal()">Cancel</button><button class="primary">Save budget</button></div>
+</form></div></div>
+<div class="modal" id="modal"><div class="modalbox">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:15px;border-bottom:1px solid var(--line);padding-bottom:15px">
+  <div><h2 id="modalTitle" style="margin:0 0 4px">Add item</h2><p class="label" style="margin:0">Build a complete record for this product.</p></div>
+  <button type="button" class="smallbtn" onclick="closeModal()">✕</button>
+</div>
+<form class="form" onsubmit="saveItem(event)" style="display:block">
+<input id="fId" type="hidden">
+<div style="max-height:62vh;overflow-y:auto;padding:18px 6px 18px 2px">
+  <div class="section" style="box-shadow:none;margin-bottom:14px">
+    <h2>Basic information</h2>
+    <div style="display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:12px">
+      <label>Name<input id="fName" required placeholder="Product name"></label>
+      <label>Category<select id="fCategory"><option>Wardrobe</option><option>Footwear</option><option>Accessories</option><option>Grooming</option><option>Resources</option><option>Wishlist</option><option>Orders</option></select></label>
+      <label>Subcategory<input id="fSub" placeholder="Shirt, Sneakers, Watch..."></label>
+      <label>Colour / Type<input id="fColour" placeholder="Optional"></label>
+      <label>Status<select id="fStatus"><option>Already owned</option><option>Owned</option><option>Planned</option><option>Wishlist</option><option>Ordered</option><option>Delivered</option></select></label>
+    </div>
+  </div>
+  <div class="section" style="box-shadow:none;margin-bottom:14px">
+    <h2>Purchase & budget</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+      <label>Price (₹)<input id="fPrice" type="number" min="0" step="1" value="0"></label>
+      <label>Purchase / acquired date<input id="fDate" type="date"></label>
+      <label>Month<select id="fMonth"><option>October 2025</option><option>November 2025</option><option>December 2025</option><option>January 2026</option><option>February 2026</option><option>March 2026</option><option>April 2026</option><option>May 2026</option><option>June 2026</option><option>July 2026</option><option>August 2026</option><option>September 2026</option><option>October 2026</option><option>November 2026</option><option>December 2026</option><option>January 2027</option><option>Other</option></select></label>
+      <label style="grid-column:1/-1">Budget<select id="fBudget"><option value="">No budget</option></select></label>
+    </div>
+    <div id="historicalBudgetHint" class="label" style="display:none;margin-top:10px;padding:10px;background:#e8e1cd;border-radius:9px">This product was bought before October 2026. You can assign it to any budget.</div>
+  </div>
+  <div class="section" style="box-shadow:none;margin-bottom:14px">
+    <h2>Links & notes</h2>
+    <div style="display:grid;gap:12px">
+      <label>Shopping / resource link<input id="fLink" type="url" placeholder="https://..."></label>
+      <label>Notes<textarea id="fNotes" rows="5" placeholder="Material, fit, where you bought it, care instructions, etc."></textarea></label>
+    </div>
+  </div>
+</div>
+<div class="actions" style="border-top:1px solid var(--line);padding-top:15px">
+  <button type="button" class="smallbtn" onclick="closeModal()">Cancel</button>
+  <button class="primary">Save item</button>
+</div>
+</form></div></div>
+<script>
+const KEY='myCollectionV1';
+let data=JSON.parse(localStorage.getItem(KEY)||'{"items":[],"outfits":[],"orders":[]}');
+const DBPromise=(()=>new Promise(resolve=>{const r=indexedDB.open('MyCollectionPermanentDB',1);r.onupgradeneeded=()=>r.result.createObjectStore('snapshots',{keyPath:'id'});r.onsuccess=()=>resolve(r.result);r.onerror=()=>resolve(null);}))();
+const money=n=>'₹'+Number(n||0).toLocaleString('en-IN');
+const save=()=>{localStorage.setItem(KEY,JSON.stringify(data));DBPromise.then(db=>{if(!db)return;const tx=db.transaction('snapshots','readwrite');tx.objectStore('snapshots').put({id:'latest',savedAt:new Date().toISOString(),data});});};
+function nav(){
+ document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(b.dataset.page).classList.add('active');renderAll();});
+}
+function openModal(cat='Wardrobe'){document.getElementById('modal').classList.add('open');document.getElementById('fCategory').value=cat;document.getElementById('modalTitle').textContent='Add item';document.getElementById('fId').value='';document.getElementById('fPrice').value=0}
+function closeModal(){document.getElementById('modal').classList.remove('open')}
+function budgetDateRule(){return true;}
+function saveItem(e){
+ if(!ensureOwner())return;
+ e.preventDefault();
+ const id=Number(fId.value);
+ const payload={name:fName.value,category:fCategory.value,sub:fSub.value,colour:fColour.value,price:+fPrice.value||0,status:fStatus.value,month:fMonth.value,acquiredDate:fDate.value,budgetId:fBudget.value||'',link:fLink.value,notes:fNotes.value};
+ if(id){
+   const idx=data.items.findIndex(x=>x.id===id);
+   if(idx>-1) data.items[idx]={...data.items[idx],...payload};
+ } else {
+   data.items.push({...payload,id:Date.now(),created:new Date().toISOString()});
+ }
+ save();e.target.reset();fId.value='';fPrice.value=0;fDate.value='';fBudget.value='';closeModal();renderAll();
+}
+function editItem(id){
+ if(!ensureOwner())return;
+ const x=data.items.find(i=>i.id===id); if(!x)return;
+ openModal(x.category); modalTitle.textContent='Edit product';
+ fId.value=x.id; fName.value=x.name||''; fCategory.value=x.category||'Wardrobe'; fSub.value=x.sub||'';
+ fColour.value=x.colour||''; fPrice.value=x.price||0; fStatus.value=x.status||'Owned'; fMonth.value=x.month||'Other';
+ fDate.value=x.acquiredDate||''; fLink.value=x.link||''; fNotes.value=x.notes||'';
+}
+
+function matches(item,q){q=(q||'').toLowerCase();return !q||[item.name,item.sub,item.colour,item.status].join(' ').toLowerCase().includes(q)}
+function card(item){
+ return `<div class="item"><h3>${esc(item.name)}</h3><div class="meta">${esc(item.sub||item.category)}${item.colour?' · '+esc(item.colour):''}<br>${esc(item.status)}${item.month?' · '+esc(item.month):''}${item.acquiredDate?' · '+esc(item.acquiredDate):''}</div><div class="price">${money(item.price)}</div>${item.budgetId?`<div class="meta" style="margin-top:5px">Budget: ${esc((data.budgets||[]).find(b=>Number(b.id)===Number(item.budgetId))?.name||'')}</div>`:''}${item.link?`<a href="${esc(item.link)}" target="_blank" style="color:var(--accent);font-size:13px">Open link ↗</a>`:''}${item.notes?`<div class="meta" style="margin-top:6px">${esc(item.notes)}</div>`:''}<div style="margin-top:12px"><button class="smallbtn" onclick="editItem(${item.id})">Edit</button> <button class="smallbtn dangerbtn" onclick="removeItem(${item.id})">Delete</button></div></div>`
+}
+function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function renderCategory(cat){
+ const id=cat.toLowerCase()+'Items';let arr=data.items.filter(x=>x.category===cat);
+ const q=cat==='Wardrobe'?document.getElementById('wardrobeSearch')?.value:'';
+ arr=arr.filter(x=>matches(x,q));document.getElementById(id).innerHTML=arr.length?arr.map(card).join(''):'<div class="empty">No items yet.</div>';
+}
+function removeItem(id){if(!ensureOwner())return;data.items=data.items.filter(x=>x.id!==id);save();renderAll()}
+function renderDashboard(){
+ const owned=data.items.filter(x=>['Already owned','Owned','Delivered'].includes(x.status));
+ const spent=owned.reduce((a,x)=>a+x.price,0),wish=data.items.filter(x=>x.status==='Wishlist'||x.category==='Wishlist').length;
+ totalItems.textContent=data.items.length;totalSpent.textContent=money(spent);wishlistCount.textContent=wish;outfitCount.textContent=data.outfits.length;
+ const months=['October 2026','November 2026','December 2026','January 2027'], ids=['oct','nov','dec','jan'];
+ let planned=0;months.forEach((m,i)=>{let n=data.items.filter(x=>x.month===m).length;document.getElementById(ids[i]).textContent=`${Math.min(n,5)} / 5`;planned+=Math.min(n,5)});
+ planBar.style.width=Math.min(planned/20*100,100)+'%';planText.textContent=`${planned} / 20 planned purchases`;
+ budgetBar.style.width=Math.min(spent/20000*100,100)+'%';budgetText.textContent=`${money(spent)} spent · ${money(Math.max(20000-spent,0))} remaining`;
+ const recent=[...data.items].reverse().slice(0,5);recentEl=document.getElementById('recent');recentEl.innerHTML=recent.length?recent.map(x=>`<div class="row"><span><b>${esc(x.name)}</b><br><span class="label">${esc(x.category)} · ${esc(x.status)}</span></span><b>${money(x.price)}</b></div>`).join(''):'<div class="empty">Your collection is empty. Start by adding your first item.</div>';
+}
+function renderOutfits(){
+ const opts=(filter)=>data.items.filter(x=>['Already owned','Owned','Delivered'].includes(x.status)).filter(filter).map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('');
+ topSel.innerHTML='<option value="">Select top</option>'+opts(x=>x.category==='Wardrobe'&&/shirt|polo|t-shirt|tee/i.test(x.sub||x.name));
+ bottomSel.innerHTML='<option value="">Select bottom</option>'+opts(x=>x.category==='Wardrobe'&&/jean|trouser|pant|short/i.test(x.sub||x.name));
+ shoeSel.innerHTML='<option value="">Select footwear</option>'+opts(x=>x.category==='Footwear');
+ watchSel.innerHTML='<option value="">Select accessory</option>'+opts(x=>x.category==='Accessories'&&/watch/i.test(x.sub||x.name));
+ [topSel,bottomSel,shoeSel,watchSel].forEach(x=>x.onchange=previewOutfit);
+ document.getElementById('savedOutfits').innerHTML=data.outfits.length?data.outfits.map((o,i)=>`<div class="row"><span>${o.names.map(esc).join(' · ')}</span><button class="smallbtn dangerbtn" onclick="data.outfits.splice(${i},1);save();renderAll()">Delete</button></div>`).join(''):'<div class="empty">No saved outfits yet.</div>';
+}
+function selectedNames(){return [topSel,bottomSel,shoeSel,watchSel].map(s=>data.items.find(x=>x.id==s.value)?.name).filter(Boolean)}
+function previewOutfit(){const n=selectedNames();outfitPreview.className=n.length?'section':'empty';outfitPreview.innerHTML=n.length?'<b>Outfit preview</b><br>'+n.map(esc).join(' + '):'Choose pieces to preview an outfit.'}
+function saveOutfit(){const n=selectedNames();if(!n.length)return alert('Select at least one item.');data.outfits.push({id:Date.now(),names:n});save();renderAll()}
+function renderBudget(){
+ const owned=data.items.filter(x=>['Already owned','Owned','Delivered'].includes(x.status)),spent=owned.reduce((a,x)=>a+x.price,0);
+ budgetSpent.textContent=money(spent);budgetRemain.textContent=money(Math.max(20000-spent,0));avgItem.textContent=money(owned.length?spent/owned.length:0);
+ purchaseTable.innerHTML=owned.length?`<table class="table"><thead><tr><th>Item</th><th>Category</th><th>Month</th><th>Price</th></tr></thead><tbody>${owned.map(x=>`<tr><td>${esc(x.name)}</td><td>${esc(x.category)}</td><td>${esc(x.month)}</td><td>${money(x.price)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">No purchases recorded.</div>';
+}
+function renderStats(){
+ const total=data.items.length,spent=data.items.filter(x=>x.status==='Owned'||x.status==='Delivered').reduce((a,x)=>a+x.price,0);
+ statsCards.innerHTML=[['Total items',total],['Owned',data.items.filter(x=>['Already owned','Owned','Delivered'].includes(x.status)).length],['Total spent',money(spent)],['Saved outfits',data.outfits.length]].map(x=>`<div class="card"><div class="label">${x[0]}</div><div class="stat">${x[1]}</div></div>`).join('');
+ const cats={};data.items.forEach(x=>cats[x.category]=(cats[x.category]||0)+1);categoryStats.innerHTML=Object.keys(cats).length?Object.entries(cats).map(([k,v])=>`<div class="row"><span>${esc(k)}</span><span class="badge">${v}</span></div>`).join(''):'<div class="empty">No data yet.</div>';
+}
+function renderHistory(){
+ const months=['October 2025','November 2025','December 2025','January 2026','February 2026','March 2026','April 2026','May 2026','June 2026','July 2026','August 2026','September 2026','October 2026','November 2026','December 2026','January 2027'];
+ const h=document.getElementById('history');
+ h.innerHTML=months.map(m=>{const arr=data.items.filter(x=>x.month===m);return `<div class="row"><span><b>${m}</b><br><span class="label">${arr.length} item${arr.length===1?'':'s'}</span></span><span>${arr.length?money(arr.reduce((a,x)=>a+x.price,0)):'—'}</span></div>`}).join('');
+}
+function productSearch(q){
+ q=(q||'').trim().toLowerCase();
+ if(!q)return [];
+ return data.items.filter(x=>[x.name,x.category,x.sub,x.colour,x.status,x.month,x.notes].join(' ').toLowerCase().includes(q));
+}
+function renderSearchResults(){
+ const q=document.getElementById('searchPageInput')?.value||'';
+ const arr=productSearch(q);
+ document.getElementById('searchResults').innerHTML=q?(arr.length?arr.map(card).join(''):'<div class="empty">No matching products found.</div>'):'<div class="empty">Type a product name, category, colour, status, month or note to search.</div>';
+}
+function globalSearchItems(){
+ const q=document.getElementById('globalSearch').value;
+ if(q){
+   document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+   document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+   document.getElementById('search').classList.add('active');
+   document.getElementById('searchPageInput').value=q;
+   renderSearchResults();
+ }
+}
+
+function ensureOwner(){
+ const pin=localStorage.getItem('collectionOwnerPin');
+ if(!pin)return true;
+ if(localStorage.getItem('collectionOwnerUnlocked')==='1')return true;
+ const entered=prompt('Owner PIN required:');
+ if(entered===pin){localStorage.setItem('collectionOwnerUnlocked','1');return true;}
+ alert('Access denied.');return false;
+}
+function setOwnerPin(){
+ const pin=prompt('Create a 4–12 digit owner PIN:');
+ if(pin && /^[0-9]{4,12}$/.test(pin)){localStorage.setItem('collectionOwnerPin',pin);localStorage.setItem('collectionOwnerUnlocked','1');alert('Owner PIN saved on this browser.');}
+ else if(pin) alert('PIN must contain 4–12 digits.');
+}
+function lockOwner(){localStorage.setItem('collectionOwnerUnlocked','0');alert('Owner Mode locked.');}
+function exportBackup(){
+ const payload={app:'My Collection',version:2,exportedAt:new Date().toISOString(),data};
+ const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='my-collection-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();
+ setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+function importBackup(e){
+ const f=e.target.files[0];if(!f)return;
+ const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result);if(!x.data?.items)throw 0;data=x.data;data.shares=data.shares||[]; data.budgets=data.budgets||[];save();renderAll();alert('Backup restored.');}catch(_){alert('Invalid backup file.');}};
+ r.readAsText(f);e.target.value='';
+}
+let selectedShare=new Set();
+function renderSharePicker(){
+ const el=document.getElementById('sharePicker');if(!el)return;
+ const q=(document.getElementById('shareSearch')?.value||'').toLowerCase();
+ const arr=data.items.filter(x=>[x.name,x.category,x.sub,x.colour,x.status,x.month].join(' ').toLowerCase().includes(q));
+ el.innerHTML=arr.length?arr.map(x=>`<div class="item"><label style="display:flex;gap:10px"><input type="checkbox" ${selectedShare.has(x.id)?'checked':''} onchange="toggleShare(${x.id},this.checked)"><span><h3>${esc(x.name)}</h3><div class="meta">${esc(x.category)} · ${esc(x.sub||'')}<br>${esc(x.status)} · ${esc(x.month||'')}</div><div class="price">${money(x.price)}</div></span></label></div>`).join(''):'<div class="empty">No products found.</div>';
+}
+function toggleShare(id,on){on?selectedShare.add(id):selectedShare.delete(id)}
+function selectAllShare(){data.items.forEach(x=>selectedShare.add(x.id));renderSharePicker()}
+function clearShare(){selectedShare.clear();renderSharePicker()}
+function createShare(){
+ const items=data.items.filter(x=>selectedShare.has(x.id));
+ if(!items.length)return alert('Select at least one product.');
+ data.shares=data.shares||[]; data.budgets=data.budgets||[];
+ data.shares.push({id:'SHARE-'+Date.now(),created:new Date().toISOString(),items:items.map(x=>x.id),revoked:false});
+ save();renderShares();alert('Read-only share created. A real shareable URL requires an online account/database version.');
+}
+function revokeShare(id){const x=(data.shares||[]).find(s=>s.id===id);if(x){x.revoked=true;save();renderShares()}}
+function renderShares(){
+ const el=document.getElementById('sharesList');if(!el)return;
+ const arr=data.shares||[];
+ el.innerHTML=arr.length?arr.map(x=>`<div class="row"><span><b>${x.id}</b><br><span class="label">${x.items.length} selected · ${x.revoked?'Revoked':'Active'}</span></span><button class="smallbtn dangerbtn" onclick="revokeShare('${x.id}')">${x.revoked?'Revoked':'Revoke'}</button></div>`).join(''):'<div class="empty">No shared collections yet.</div>';
+}
+function renderSearchResults(){
+ const el=document.getElementById('searchResults');if(!el)return;
+ const q=(document.getElementById('searchPageInput')?.value||'').toLowerCase();
+ const arr=data.items.filter(x=>[x.name,x.category,x.sub,x.colour,x.status,x.month,x.notes].join(' ').toLowerCase().includes(q));
+ el.innerHTML=q?(arr.length?arr.map(card).join(''):'<div class="empty">No matching products.</div>'):'<div class="empty">Type a product name, category, colour, status or month.</div>';
+}
+
+function openBudgetModal(id=null){
+ document.getElementById('budgetModal').classList.add('open');
+ if(id){
+  const b=data.budgets.find(x=>x.id===id);if(!b)return;
+  bId.value=b.id;bName.value=b.name;bAmount.value=b.amount;bStart.value=b.start;bEnd.value=b.end;bNotes.value=b.notes||'';
+  budgetModalTitle.textContent='Edit budget';
+ }else{
+  document.getElementById('budgetModalTitle').textContent='Create budget';
+  document.getElementById('bId').value='';document.getElementById('bName').value='';document.getElementById('bAmount').value='';
+  document.getElementById('bStart').value='';document.getElementById('bEnd').value='';document.getElementById('bNotes').value='';
+ }
+}
+function closeBudgetModal(){document.getElementById('budgetModal').classList.remove('open')}
+function saveBudget(e){
+ if(!ensureOwner())return;e.preventDefault();
+ const id=Number(bId.value);
+ const obj={name:bName.value,amount:+bAmount.value||0,start:bStart.value,end:bEnd.value,notes:bNotes.value};
+ if(obj.end<obj.start)return alert('End date must be on or after the start date.');
+ if(id){const i=data.budgets.findIndex(x=>x.id===id);if(i>-1)data.budgets[i]={...data.budgets[i],...obj};}
+ else data.budgets.push({...obj,id:Date.now()});
+ save();closeBudgetModal();renderAll();
+}
+function deleteBudget(id){
+ if(!ensureOwner())return;
+ if(data.items.some(x=>Number(x.budgetId)===Number(id)))return alert('This budget has products assigned to it. Reassign those products first.');
+ data.budgets=data.budgets.filter(x=>x.id!==id);save();renderAll();
+}
+function budgetSpent(id){
+ return data.items.filter(x=>Number(x.budgetId)===Number(id) && ['Already owned','Owned','Delivered'].includes(x.status)).reduce((a,x)=>a+x.price,0);
+}
+function renderBudgetList(){
+ const el=document.getElementById('budgetList');if(!el)return;
+ const arr=data.budgets||[];
+ el.innerHTML=arr.length?arr.map(b=>{
+   const spent=budgetSpent(b.id),remaining=b.amount-spent,pct=b.amount?Math.min(spent/b.amount*100,100):0;
+   const count=data.items.filter(x=>Number(x.budgetId)===Number(b.id)).length;
+   return `<div class="row" style="display:block"><div style="display:flex;justify-content:space-between;gap:10px"><span><b>${esc(b.name)}</b><br><span class="label">${esc(b.start)} → ${esc(b.end)} · ${count} assigned item${count===1?'':'s'}</span></span><span><b>${money(spent)}</b> / ${money(b.amount)}</span></div><div class="progress" style="margin-top:10px"><div class="bar" style="width:${pct}%"></div></div><div style="margin-top:9px;display:flex;justify-content:space-between"><span class="label">${remaining>=0?money(remaining)+' remaining':money(Math.abs(remaining))+' over budget'}</span><span><button class="smallbtn" onclick="openBudgetModal(${b.id})">Edit</button> <button class="smallbtn dangerbtn" onclick="deleteBudget(${b.id})">Delete</button></span></div></div>`;
+ }).join(''):'<div class="empty">No budgets yet. Create one for any date range.</div>';
+}
+function updateHistoricalBudgetHint(){
+ const d=document.getElementById('fDate')?.value;
+ const hint=document.getElementById('historicalBudgetHint');
+ if(hint)hint.style.display=(d && d<'2026-10-01')?'block':'none';
+}
+function refreshBudgetSelect(){
+ const el=document.getElementById('fBudget');if(!el)return;
+ const current=el.value;
+ el.innerHTML='<option value="">No budget</option><option value="__create__">+ Create a new budget</option>'+(data.budgets||[]).map(b=>`<option value="${b.id}">${esc(b.name)} · ${esc(b.start)} → ${esc(b.end)}</option>`).join('');
+ if(current)el.value=current;
+}
+function setupBudgetSelector(){
+ const el=document.getElementById('fBudget');if(!el)return;
+ el.onchange=()=>{if(el.value==='__create__'){el.value='';openBudgetModal();}};
+ const date=document.getElementById('fDate');if(date)date.onchange=updateHistoricalBudgetHint;
+}
+function renderAll(){refreshBudgetSelect();setupBudgetSelector();updateHistoricalBudgetHint();renderDashboard();renderBudgetList();renderSharePicker();renderShares();renderSearchResults();renderHistory();renderSearchResults();['Wardrobe','Footwear','Accessories','Grooming','Resources','Wishlist'].forEach(renderCategory);renderOutfits();renderBudget();renderStats();ordersList.innerHTML='<div class="empty">Order module ready — add order records from the button above.</div>'}
+nav();renderAll();
+</script>
+</body>
+</html>
